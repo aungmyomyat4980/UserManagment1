@@ -64,7 +64,7 @@ const deleteUser = async (userId, userData) => {
   }
 };
 
-// Get all users
+// Get all Teams
 const getTeams = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/team`);

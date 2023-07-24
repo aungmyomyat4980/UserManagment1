@@ -1,0 +1,17 @@
+.menu-container {
+  padding: 80px;
+}
+
+.menu-title {
+  text-align: center;
+}
+
+.menu-title div {
+  display: inline-block;
+  background-color: #1677ff;
+  color: #fff;
+  width: 350px;
+  margin-bottom: 40px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}

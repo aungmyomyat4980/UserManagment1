@@ -1,0 +1,66 @@
+.table {
+  & thead {
+    background-color: #707070; /* Set the background color for the table header */
+    text-align: center; /* Center align the text in the table header */
+  }
+
+  & tbody td:first-child {
+    text-align: right; /* Center align the text in the first column of the table body */
+  }
+}
+
+.usermanagement-form-main {
+  background: #eee;
+  padding: 45px 300px;
+}
+
+.usermanagement-form-container {
+  background: #fff;
+  padding: 25px 100px;
+  display: flex;
+  justify-content: center;
+}
+
+.usermanagement-input {
+  width: 300px !important;
+}
+
+.usermanagement-form-button-container {
+  text-align: center;
+}
+
+.usermanagement-table-main {
+  margin-top: 20px;
+}
+.usermanagement-form-main {
+  background: #eee;
+  padding: 45px 300px;
+}
+
+.usermanagement-form-container {
+  background: #fff;
+  padding: 25px 100px;
+  display: flex;
+  justify-content: center;
+}
+
+.usermanagement-input {
+  width: 300px !important;
+}
+
+.usermanagement-form-button-container {
+  text-align: center;
+}
+
+.usermanagement-table-main {
+  margin-top: 20px;
+}
+
+.btn {
+    margin-right: 20px;
+}
+
+.confrimation-message {
+  text-align: center;
+  font-size: 18px;
+}

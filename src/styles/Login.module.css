@@ -1,0 +1,29 @@
+.login-form-main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-form-container {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.login-form-button {
+  width: 100%;
+}
+
+.login-form-err-message {
+    color: red;
+    text-align: center;
+}
+
+@media (max-width: 576px) {
+  .login-form-container {
+    max-width: 100%;
+  }
+}

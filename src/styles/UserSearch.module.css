@@ -1,0 +1,24 @@
+.usermanagement-form-main {
+    background: #eee;
+    padding: 45px 300px;
+  }
+  
+  .usermanagement-form-container {
+    background: #fff;
+    padding: 25px 100px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .usermanagement-input {
+    width: 300px !important;
+  }
+  
+  .usermanagement-form-button-container {
+    text-align: center;
+  }
+  
+  .usermanagement-table-main {
+    margin-top: 20px;
+  }
+  

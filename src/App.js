@@ -1,0 +1,106 @@
+import { useState,useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
+import Login from "./pages/Login/Login";
+import Usermanagement from "./pages/Usermanagement/Usermanagement";
+import Menu from "./pages/Menu/Menu";
+import Teamsetting from "./pages/Teamsetting/Teamsetting";
+import UserSearch from "./pages/UserSearch/UserSearch";
+
+function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    localStorage.getItem("isLoggedIn") === "true" ? true : false
+  );
+
+  // Read loginUsercheck from localStorage on component mount
+  const [loginUsercheck, setLoginUsercheck] = useState(
+    localStorage.getItem("loginUsercheck") === "true" ? true : false
+  );
+
+  const [loginUser, setLoginUser] = useState([
+    {
+      _id: "",
+      email: "",
+      user_level: "",
+      user_name: "",
+      user_name_last: "",
+      team_name: "",
+    },
+  ]);
+
+  useEffect(() => {
+    // Save the isLoggedIn state to localStorage whenever it changes
+    localStorage.setItem("isLoggedIn", isLoggedIn);
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    // Save the loginUsercheck state to localStorage whenever it changes
+    localStorage.setItem("loginUsercheck", loginUsercheck);
+  }, [loginUsercheck]);
+  
+  const handleLogin = (
+    email,
+    id,
+    userLevel,
+    userFirstName,
+    userLastName,
+    userTeam
+  ) => {
+    setIsLoggedIn(true);
+    setLoginUser([
+      {
+        _id: id,
+        email: email,
+        user_level: userLevel,
+        user_name: userFirstName,
+        user_name_last: userLastName,
+        team_name: userTeam,
+      },
+    ]);
+  };
+  const ProtectedRoute = ({ element: Component, ...props }) => {
+    return isLoggedIn ? (
+      <Component loginUser={loginUser} {...props} />
+    ) : (
+      <Navigate to="/" replace={true} />
+    );
+  };
+
+  return (
+    <Router>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <Login
+              onLogin={handleLogin}
+              setLoginUsercheck={setLoginUsercheck}
+            />
+          }
+        />
+        <Route
+          path="/usermanagement"
+          element={<ProtectedRoute element={Usermanagement} />}
+        />
+        <Route
+          path="/teamsetting"
+          element={<ProtectedRoute element={Teamsetting} />}
+        />
+        <Route
+          path="/menu"
+          element={<ProtectedRoute element={Menu} loginUsercheck={loginUsercheck} />}
+        />
+        <Route
+          path="/usersearch"
+          element={<ProtectedRoute element={UserSearch} />}
+        />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;

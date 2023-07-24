@@ -30,25 +30,28 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef(null);
   const [emptySearchResults, setEmptySearchResults] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
     setSearchText(selectedKeys[0]);
     setSearchedColumn(dataIndex);
-  
+
     const searchTerm = selectedKeys[0] ? selectedKeys[0].toLowerCase() : ""; // Check if selectedKeys[0] is defined
-  
+
     const filteredData = data.filter((record) =>
-      record[dataIndex] ? record[dataIndex].toString().toLowerCase().includes(searchTerm) : ""
+      record[dataIndex]
+        ? record[dataIndex].toString().toLowerCase().includes(searchTerm)
+        : ""
     );
-  
+
     setEmptySearchResults(filteredData.length === 0);
-  
+
     if (filteredData.length === 0) {
       message.warning("データが見つかりません");
     }
-  };  
+  };
 
   const handleReset = (clearFilters) => {
     clearFilters();
@@ -214,7 +217,10 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
       title: "番号",
       dataIndex: "_id",
       key: "id",
-      render: (_, record, index) => index + 1,
+      render: (_, record, index) => {
+        const pageIndex = currentPage === 1 ? 0 : (currentPage - 1) * 10;
+        return pageIndex + index + 1;
+      },
     },
     {
       title: "ユーザー名",
@@ -253,8 +259,13 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
     },
   ];
 
+  const onChange = (pagination, filters, sorter) => {
+    setCurrentPage(pagination.current); // Update the current page
+  };
+
   const paginationConfig = {
     pageSize: 10,
+    current: currentPage, // Set the current page
   };
 
   // Filter data based on del_flg property
@@ -262,16 +273,17 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
 
   return (
     <>
-    <Helmet>
+      <Helmet>
         <title>User Management</title>
         <link rel="icon" type="image/png" href="/path/to/favicon.png" />
-    </Helmet>
-    <Table
+      </Helmet>
+      <Table
         columns={columns}
         dataSource={filteredData.map((user) => ({ ...user, key: user._id }))}
         loading={loading}
         pagination={paginationConfig}
         className={styles.table}
+        onChange={onChange}
       />
       <Modal
         centered
@@ -294,14 +306,14 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
             name="firstName"
             rules={[{ required: true, message: Messages.M013 }]}
           >
-            <Input className={styles["usermanagement-input"]} disabled  />
+            <Input className={styles["usermanagement-input"]} disabled />
           </Form.Item>
           <Form.Item
             label="ユーザー名[名]"
             name="lastName"
             rules={[{ required: true, message: Messages.M014 }]}
           >
-            <Input className={styles["usermanagement-input"]} disabled  />
+            <Input className={styles["usermanagement-input"]} disabled />
           </Form.Item>
           <Form.Item
             label="メールアドレス"

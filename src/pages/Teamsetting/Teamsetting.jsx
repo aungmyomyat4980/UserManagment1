@@ -24,7 +24,7 @@ const { Search } = Input;
 const Teamsetting = ({ loginUser }) => {
   const [userData, setUserData] = useState([]);
   const [teamData, setTeamData] = useState([]);
-  const [searchteamData, setsearchteamData] = useState([]);
+  const [searchteamData, setSearchTeamData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [clickUsers, setClickUsers] = useState([]);
@@ -35,8 +35,15 @@ const Teamsetting = ({ loginUser }) => {
   const [searchValues, setSearchValues] = useState([]); // State for search input values
 
   useEffect(() => {
-    fetchUsers();
+    // Simulating data fetching or any other asynchronous data loading process
+    // Replace this with your actual data loading logic
+    setTimeout(() => {
+      const fetchedData = fetchUsers.filteredTeam;
+      setTeamData(fetchedData);
+      setLoading(false);
+    }, 2000); // Just a mock delay of 2 seconds for loading
   }, []);
+
 
   const fetchUsers = async () => {
     try {
@@ -45,7 +52,7 @@ const Teamsetting = ({ loginUser }) => {
       const teams = await getTeams();
       const filteredData = users.filter((user) => user.del_flg === "0");
       const filteredTeam = teams.filter((team) => team.del_flg === "0");
-      setTeamData(filteredTeam);
+      // setTeamData(filteredTeam);
       setUserData(filteredData);
       setLoading(false);
     } catch (error) {
@@ -90,7 +97,7 @@ const Teamsetting = ({ loginUser }) => {
     );
 
     // Update the searchteamData state with the filtered teams
-    setsearchteamData(filteredTeams);
+    setSearchTeamData(filteredTeams);
   };
 
   const handleFormSubmit = async (values) => {
@@ -123,13 +130,12 @@ const Teamsetting = ({ loginUser }) => {
 
   const handleSearchSubmit = async (values) => {
     const newSearchValue = values.teamSearchInput?.trim(); // Trim any leading/trailing spaces from the search input
-    // Filter the teamData based on the search value (excluding "なし" team)
     const filteredTeams = teamData.filter(
       (team) =>
-        team.team_name !== "なし" && team.team_name.includes(newSearchValue)
+        team.team_name !== 'なし' && team.team_name.includes(newSearchValue)
     );
     // Update the searchteamData state with the filtered teams
-    setsearchteamData(filteredTeams);
+    setSearchTeamData(filteredTeams);
 
     // Close the modal and reset selected users
     setUser([]);
@@ -139,7 +145,12 @@ const Teamsetting = ({ loginUser }) => {
 
   const handleRightClick = () => {
     if (!loading) {
-      setClickUsers((prevUsers) => [...prevUsers, ...selectedUsers]);
+      setClickUsers((prevUsers) => {
+        const uniqueSelectedUsers = selectedUsers.filter(
+          (selectedUser) => !prevUsers.includes(selectedUser)
+        );
+        return [...prevUsers, ...uniqueSelectedUsers];
+      });
       setSelectedUsers([]);
     }
   };
@@ -293,33 +304,31 @@ const Teamsetting = ({ loginUser }) => {
             <div className={styles["teamsetting-box-main"]}>
               <div className={styles["teamsetting-box-container"]}>
                 <div className={styles["teamsetting-box"]}>
+                  {/* Use the searchteamData state when it's not empty, otherwise use userData */}
                   {loading ? (
                     <div>Loading...</div>
                   ) : (
                     <>
-                      {userData?.map((user) => (
-                        <div
-                          onClick={() => handleClickUser(user._id)}
-                          className={`${styles["teamsetting-user"]} ${
-                            clickUsers.find(
-                              (clickedUser) => clickedUser._id === user._id
-                            )
-                              ? styles["none"]
-                              : ""
-                          } ${
-                            selectedUsers.find(
-                              (selectedUser) => selectedUser._id === user._id
-                            )
-                              ? styles["selected"]
-                              : ""
-                          }`}
-                          key={user?._id}
-                        >
-                          <div>{`${user.user_name} ${user.user_name_last}`}</div>
-                          <div>{user.email}</div>
-                        </div>
-                      ))}
-                    </>
+            {/* Display the users based on the selected data (searchteamData or userData) */}
+            {(searchteamData.length > 0 ? searchteamData : teamData).map((user) => (
+              <div
+                onClick={() => handleClickUser(user._id)}
+                className={`${styles['teamsetting-user']} ${
+                  clickUsers.find((clickedUser) => clickedUser._id === user._id)
+                    ? styles['none']
+                    : ''
+                } ${
+                  selectedUsers.find((selectedUser) => selectedUser._id === user._id)
+                    ? styles['selected']
+                    : ''
+                }`}
+                key={user?._id}
+              >
+                <div>{`${user.user_name} ${user.user_name_last}`}</div>
+                <div>{user.email}</div>
+              </div>
+            ))}
+          </>
                   )}
                 </div>
               </div>

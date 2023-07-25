@@ -212,12 +212,12 @@ const Teamsetting = ({ loginUser }) => {
     {
       title: "番号",
       dataIndex: "id",
-      key: "id",
       render: (_, record, index) => (
         <Checkbox onChange={(e) => onChange(e, record, index)}>
           {index + 1 + (currentPage - 1) * pageSize}
         </Checkbox>
       ),
+      key: "index",
     },
     {
       title: "チーム名",

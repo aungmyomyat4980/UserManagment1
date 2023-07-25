@@ -19,6 +19,8 @@ import { getTeams, getUsers, updateUser } from "../../api/api";
 import { Messages } from "../../data/message";
 import { Helmet } from "react-helmet";
 
+const { Search } = Input;
+
 const Teamsetting = ({ loginUser }) => {
   const [userData, setUserData] = useState([]);
   const [teamData, setTeamData] = useState([]);
@@ -31,13 +33,15 @@ const Teamsetting = ({ loginUser }) => {
   const [teamSearchInput, setTeamSearchInput] = useState("");
   const [form] = Form.useForm();
   const [searchValues, setSearchValues] = useState([]);
+  const pageSize = 6;
+  const [currentPage, setCurrentPage] = useState(1);
 
   // コンポーネントがマウントされたときにユーザーデータを取得
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  // すべてのユーザーとチームを取得する
+  // Function to fetch user data and team data from the API when the component is mounted.
   const fetchUsers = async () => {
     try {
       setLoading(true);
@@ -54,6 +58,7 @@ const Teamsetting = ({ loginUser }) => {
     }
   };
 
+  // Function to handle the click event on a user in the user list.
   const handleClickUser = (userId) => {
     const clickedUser = userData.find((user) => user._id === userId);
 
@@ -77,19 +82,24 @@ const Teamsetting = ({ loginUser }) => {
     }
   };
 
+  // Function to handle the search input for team names and filter the teamData accordingly.
   const onSearch = (value) => {
     // ユーザーが入力したときに検索入力値を更新する
     setTeamSearchInput(value);
+
     // Convert the search input and team names to lowercase for case-insensitive search
     const lowerCaseSearch = value.toLowerCase();
+
     // 検索値に基づいてteamDataをフィルタリングする
     const filteredTeams = teamData.filter((team) =>
       team.team_name.toLowerCase().includes(lowerCaseSearch)
     );
+
     // フィルターされたチームで searchteamData 状態を更新する
     setsearchteamData(filteredTeams);
   };
 
+  // Function to handle the form submission when the user selects a team for the selected users.
   const handleFormSubmit = async (values) => {
     const newUserData = clickUsers.map((user) => ({
       ...user, // Include the existing properties from the user object
@@ -98,7 +108,8 @@ const Teamsetting = ({ loginUser }) => {
       update_datetime: new Date().toISOString(),
       team_name: values.teamSelect,
     }));
-    //const selectedTeam = values.teamSelect;
+
+    // const selectedTeam = values.teamSelect;
     try {
       for (const user of newUserData) {
         await updateUser(user._id, user);
@@ -107,13 +118,17 @@ const Teamsetting = ({ loginUser }) => {
       console.error("Error updating users:", error);
     }
     message.success(Messages.M008);
-    // fetchUsers();
+
+    //setClickUsers([]);
+    fetchUsers();
+    //setSelectedUsers([]);
     setClickUsers([]);
   };
 
+  // Function to handle the form submission when the user adds search values for team names.
   const handleSearchSubmit = async (values) => {
     // Get the new search value from the input
-    //const selectedTeam = values.teamSelect === "なし" ? "" : values.teamSelect;
+    const selectedTeam = values.teamSelect === "なし" ? "" : values.teamSelect;
     const newSearchValue = values.teamSearchInput;
 
     // Add the new search value to the existing searchValues array
@@ -121,6 +136,7 @@ const Teamsetting = ({ loginUser }) => {
       ...prevSearchValues,
       newSearchValue,
     ]);
+
     // Filter the userData based on the updated searchValues array
     let filteredUserData;
     if (searchValues.includes("なし")) {
@@ -140,6 +156,7 @@ const Teamsetting = ({ loginUser }) => {
     setIsModalVisible(false);
   };
 
+  // Function to move selected users from the left box to the right box.
   const handleRightClick = () => {
     if (!loading) {
       setClickUsers((prevUsers) => {
@@ -152,6 +169,7 @@ const Teamsetting = ({ loginUser }) => {
     }
   };
 
+  // Function to move selected users back from the right box to the left box.
   const handleLeftClick = () => {
     if (!loading) {
       setClickUsers((prevClickUsers) => {
@@ -165,6 +183,7 @@ const Teamsetting = ({ loginUser }) => {
     }
   };
 
+  // Function to handle the checkbox change event for team names in the team search modal.
   const onChange = (e, record) => {
     // Toggle filter based on team_name
     if (e.target.checked) {
@@ -181,16 +200,25 @@ const Teamsetting = ({ loginUser }) => {
     }
   };
 
+  // Function to show the team search modal when the search icon button is clicked.
   const handleShowModal = () => {
     setIsModalVisible(true);
   };
+
+  // const paginationConfig = {
+  //   pageSize: 6,
+  // };
 
   const columns = [
     {
       title: "番号",
       dataIndex: "id",
       key: "id",
-      render: (_, record) => <Checkbox onChange={(e) => onChange(e, record)} />,
+      render: (_, record, index) => (
+        <Checkbox onChange={(e) => onChange(e, record, index)}>
+          {index + 1 + (currentPage - 1) * pageSize}
+        </Checkbox>
+      ),
     },
     {
       title: "チーム名",
@@ -198,6 +226,11 @@ const Teamsetting = ({ loginUser }) => {
       key: "team_name",
     },
   ];
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    // Perform any other actions when the page changes
+  };
 
   // Static data for "なし" team
   const noneTeam = {
@@ -211,10 +244,6 @@ const Teamsetting = ({ loginUser }) => {
   } else {
     combinedTeamData = searchteamData;
   }
-
-  const paginationConfig = {
-    pageSize: 6,
-  };
 
   const teamOptions = teamData.map((team) => ({
     value: team.team_name,
@@ -266,7 +295,10 @@ const Teamsetting = ({ loginUser }) => {
               dataSource={combinedTeamData}
               columns={columns}
               rowKey="id"
-              pagination={paginationConfig}
+              pagination={{
+                pageSize,
+                onChange: handlePageChange,
+              }}
             />
             <Form.Item style={{ textAlign: "center" }}>
               <Button
@@ -296,10 +328,7 @@ const Teamsetting = ({ loginUser }) => {
                 options={teamOptions}
               />
             </Form.Item>
-            <Form.Item
-              label="ユーザー名"
-              className={styles["username-form-item"]}
-            >
+            <Form.Item label="ユーザー名" className={styles["username-form-item"]}>
               <div className={styles["teamsetting-box-main"]}>
                 <div className={styles["teamsetting-box-container"]}>
                   <div className={styles["teamsetting-box"]}>

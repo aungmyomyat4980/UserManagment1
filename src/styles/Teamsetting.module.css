@@ -75,3 +75,36 @@
 .teamsetting-label {
   margin-left: 330px;
 }
+
+/* Responsive styles */
+@media (max-width: 767px) {
+  .teamsetting-label {
+    margin-left: 0;
+  }
+
+  .teamsetting-box-main {
+    flex-direction: column;
+  }
+
+  .teamsetting-btn-main {
+    margin: 10px 0;
+  }
+
+  .teamsetting-search {
+    margin-left: 0;
+    margin-bottom: 1rem;
+  }
+
+  .teamsetting-label {
+    margin-right: 0.5rem;
+  }
+
+  .teamsetting-user {
+    margin: 0.5rem 0;
+  }
+
+  .usermanagement-form-item,
+  .username-form-item {
+    margin-left: 0;
+  }
+}

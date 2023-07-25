@@ -7,10 +7,10 @@ import { Helmet } from "react-helmet";
 const Menu = ({ loginUsercheck }) => {
   return (
     <>
-    <Helmet>
+      <Helmet>
         <title>User Management</title>
         <link rel="icon" type="image/png" href="/path/to/favicon.png" />
-    </Helmet>
+      </Helmet>
       <div className={styles["menu-main"]}>
         <div className={styles["menu-container"]}>
           <div className={styles["menu-title"]}>

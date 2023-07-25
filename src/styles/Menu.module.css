@@ -1,3 +1,10 @@
+.menu-main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
 .menu-container {
   padding: 80px;
 }
@@ -16,4 +23,28 @@
   padding-bottom: 10px;
 }
 
+.menu-button {
+  height: 70px;
+  width: 100%;
+}
 
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+  .menu-title {
+    font-size: 20px;
+  }
+
+  .menu-button {
+    height: 60px;
+  }
+}
+
+@media (max-width: 576px) {
+  .menu-title {
+    font-size: 18px;
+  }
+
+  .menu-button {
+    height: 50px;
+  }
+}

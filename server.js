@@ -1,11 +1,11 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const cors = require("cors"); 
+const cors = require("cors");
 
-// MongoDB connection string for local MongoDB server
+// MongoDB サーバーの接続文字列
 const dbURI = "mongodb://0.0.0.0:27017/studentregistration";
 
-// Connect to MongoDB locally
+// MongoDB にローカルで接続する
 mongoose
   .connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
@@ -15,7 +15,7 @@ mongoose
     console.error("Error connecting to MongoDB", err);
   });
 
-// Create a user schema
+// ユーザースキーマを作成する
 const userSchema = new mongoose.Schema({
   user_name: String,
   user_name_last: String,
@@ -29,28 +29,28 @@ const userSchema = new mongoose.Schema({
   team_name: String,
 });
 
-// Create a team schema
+// チームスキーマを作成する
 const teamSchema = new mongoose.Schema({
   del_flg: String,
   team_name: String,
 });
 
-// Create a user model
+// ユーザーモデルを作成する
 const User = mongoose.model("User", userSchema);
 
-// Create a team model
+// チームモデルを作成する
 const Team = mongoose.model("Team", teamSchema);
 
-// Create an Express app
+// Expressアプリを作成する
 const app = express();
 
-// Middleware for JSON parsing
+// JSON解析用のミドルウェア
 app.use(express.json());
 
-// Use cors middleware
-app.use(cors()); // This will enable CORS for all routes
+// CORSミドルウェアを使用する
+app.use(cors());
 
-// Routes
+// ルート
 app.get("/user", async (req, res) => {
   try {
     const users = await User.find();
@@ -134,7 +134,7 @@ app.post("/team", async (req, res) => {
   }
 });
 
-// Start the server
+// サーバーをスタートする
 app.listen(8000, () => {
   console.log("Server started on port 8000");
 });

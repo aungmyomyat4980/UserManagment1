@@ -6,12 +6,12 @@ const UserSearchtable = ({ loading, data, loginUser }) => {
   const getSafeValue = (value, defaultValue = "") => {
     return value !== null && value !== undefined ? value : defaultValue;
   };
-
   const teamNameSorter = (a, b) => {
     const teamNameA = getSafeValue(a.team_name);
     const teamNameB = getSafeValue(b.team_name);
     return teamNameA.localeCompare(teamNameB);
   };
+
   const columns = [
     {
       title: "番号",
@@ -49,6 +49,7 @@ const UserSearchtable = ({ loading, data, loginUser }) => {
       sortDirections: ["ascend", "descend"],
     },
   ];
+
   const paginationConfig = {
     pageSize: 10,
   };

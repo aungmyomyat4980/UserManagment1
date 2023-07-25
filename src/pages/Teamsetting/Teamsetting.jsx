@@ -19,32 +19,25 @@ import { getTeams, getUsers, updateUser } from "../../api/api";
 import { Messages } from "../../data/message";
 import { Helmet } from "react-helmet";
 
-const { Search } = Input;
-
 const Teamsetting = ({ loginUser }) => {
   const [userData, setUserData] = useState([]);
   const [teamData, setTeamData] = useState([]);
-  const [searchteamData, setSearchTeamData] = useState([]);
+  const [searchteamData, setsearchteamData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [clickUsers, setClickUsers] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [user, setUser] = useState([]);
   const [teamSearchInput, setTeamSearchInput] = useState("");
-  const [form] = Form.useForm(); // Create a form instance
-  const [searchValues, setSearchValues] = useState([]); // State for search input values
+  const [form] = Form.useForm();
+  const [searchValues, setSearchValues] = useState([]);
 
+  // コンポーネントがマウントされたときにユーザーデータを取得
   useEffect(() => {
-    // Simulating data fetching or any other asynchronous data loading process
-    // Replace this with your actual data loading logic
-    setTimeout(() => {
-      const fetchedData = fetchUsers.filteredTeam;
-      setTeamData(fetchedData);
-      setLoading(false);
-    }, 2000); // Just a mock delay of 2 seconds for loading
+    fetchUsers();
   }, []);
 
-
+  // すべてのユーザーとチームを取得する
   const fetchUsers = async () => {
     try {
       setLoading(true);
@@ -52,7 +45,7 @@ const Teamsetting = ({ loginUser }) => {
       const teams = await getTeams();
       const filteredData = users.filter((user) => user.del_flg === "0");
       const filteredTeam = teams.filter((team) => team.del_flg === "0");
-      // setTeamData(filteredTeam);
+      setTeamData(filteredTeam);
       setUserData(filteredData);
       setLoading(false);
     } catch (error) {
@@ -65,7 +58,7 @@ const Teamsetting = ({ loginUser }) => {
     const clickedUser = userData.find((user) => user._id === userId);
 
     if (clickedUser) {
-      // Check if the user is already in the selectedUsers array
+      // ユーザーがすでに selectedUsers 配列に存在するかどうかを確認する
       const userAlreadySelected = selectedUsers.some(
         (selectedUser) => selectedUser._id === userId
       );
@@ -76,7 +69,7 @@ const Teamsetting = ({ loginUser }) => {
           clickedUser,
         ]);
       } else {
-        // If the user is already selected, remove it from the selectedUsers array
+        // ユーザーがすでに選択されている場合は、selectedUsers 配列から削除する
         setSelectedUsers((prevSelectedUsers) =>
           prevSelectedUsers.filter((user) => user._id !== userId)
         );
@@ -85,60 +78,64 @@ const Teamsetting = ({ loginUser }) => {
   };
 
   const onSearch = (value) => {
-    // Update the search input value as the user types
+    // ユーザーが入力したときに検索入力値を更新する
     setTeamSearchInput(value);
-
     // Convert the search input and team names to lowercase for case-insensitive search
     const lowerCaseSearch = value.toLowerCase();
-
-    // Filter the teamData based on the search value
+    // 検索値に基づいてteamDataをフィルタリングする
     const filteredTeams = teamData.filter((team) =>
       team.team_name.toLowerCase().includes(lowerCaseSearch)
     );
-
-    // Update the searchteamData state with the filtered teams
-    setSearchTeamData(filteredTeams);
+    // フィルターされたチームで searchteamData 状態を更新する
+    setsearchteamData(filteredTeams);
   };
 
   const handleFormSubmit = async (values) => {
-    const newUserData = userData.map((user) => {
-      if (clickUsers.some((clickUser) => clickUser._id === user._id)) {
-        return {
-          ...user,
-          // Set the team_name to the new team for selected users
-          team_name: values.teamSelect,
-        };
-      }
-      return user;
-    });
-
+    const newUserData = clickUsers.map((user) => ({
+      ...user, // Include the existing properties from the user object
+      del_flg: "0",
+      update_user: loginUser[0]._id,
+      update_datetime: new Date().toISOString(),
+      team_name: values.teamSelect,
+    }));
+    //const selectedTeam = values.teamSelect;
     try {
       for (const user of newUserData) {
-        const updatedUser = await updateUser(user._id, user);
+        await updateUser(user._id, user);
       }
     } catch (error) {
       console.error("Error updating users:", error);
     }
-
-    // Set the updated userData state with the selected users removed
-    setUserData(
-      newUserData.filter((user) => user.team_name !== values.teamSelect)
-    );
     message.success(Messages.M008);
+    // fetchUsers();
     setClickUsers([]);
   };
 
   const handleSearchSubmit = async (values) => {
-    const newSearchValue = values.teamSearchInput?.trim(); // Trim any leading/trailing spaces from the search input
-    const filteredTeams = teamData.filter(
-      (team) =>
-        team.team_name !== 'なし' && team.team_name.includes(newSearchValue)
-    );
-    // Update the searchteamData state with the filtered teams
-    setSearchTeamData(filteredTeams);
+    // Get the new search value from the input
+    //const selectedTeam = values.teamSelect === "なし" ? "" : values.teamSelect;
+    const newSearchValue = values.teamSearchInput;
 
-    // Close the modal and reset selected users
-    setUser([]);
+    // Add the new search value to the existing searchValues array
+    setSearchValues((prevSearchValues) => [
+      ...prevSearchValues,
+      newSearchValue,
+    ]);
+    // Filter the userData based on the updated searchValues array
+    let filteredUserData;
+    if (searchValues.includes("なし")) {
+      // If "なし" is in the searchValues array, include users with no team_name
+      filteredUserData = userData.filter(
+        (user) => !user.team_name || searchValues.includes(user.team_name)
+      );
+    } else {
+      // If "なし" is not in the searchValues array, only include users with the exact team_name that matches the searchValue
+      filteredUserData = userData.filter(
+        (user) => searchValues.includes(user.team_name) && user.team_name
+      );
+    }
+
+    setUser(filteredUserData);
     setClickUsers([]);
     setIsModalVisible(false);
   };
@@ -193,12 +190,7 @@ const Teamsetting = ({ loginUser }) => {
       title: "番号",
       dataIndex: "id",
       key: "id",
-      render: (_, record) => (
-        <Checkbox
-          onChange={(e) => onChange(e, record)}
-          checked={searchValues.includes(record.team_name)}
-        />
-      ),
+      render: (_, record) => <Checkbox onChange={(e) => onChange(e, record)} />,
     },
     {
       title: "チーム名",
@@ -252,10 +244,9 @@ const Teamsetting = ({ loginUser }) => {
               onClick={handleShowModal}
             />
           </div>
-
           <Modal
             title="チーム名検索"
-            visible={isModalVisible} // Change 'open' to 'visible'
+            open={isModalVisible}
             onCancel={() => setIsModalVisible(false)}
             footer={null}
             centered
@@ -287,12 +278,17 @@ const Teamsetting = ({ loginUser }) => {
               </Button>
             </Form.Item>
           </Modal>
-
           <Form form={form} onFinish={handleFormSubmit}>
             <Form.Item
               name="teamSelect"
               label="チームに移動"
               className={styles["usermanagement-form-item"]}
+              rules={[
+                {
+                  required: true,
+                  message: "チームを選択してください", // Error message when the select box is not chosen
+                },
+              ]}
             >
               <Select
                 style={{ width: "250px" }}
@@ -300,76 +296,81 @@ const Teamsetting = ({ loginUser }) => {
                 options={teamOptions}
               />
             </Form.Item>
-
-            <div className={styles["teamsetting-box-main"]}>
-              <div className={styles["teamsetting-box-container"]}>
-                <div className={styles["teamsetting-box"]}>
-                  {/* Use the searchteamData state when it's not empty, otherwise use userData */}
-                  {loading ? (
-                    <div>Loading...</div>
-                  ) : (
-                    <>
-            {/* Display the users based on the selected data (searchteamData or userData) */}
-            {(searchteamData.length > 0 ? searchteamData : teamData).map((user) => (
-              <div
-                onClick={() => handleClickUser(user._id)}
-                className={`${styles['teamsetting-user']} ${
-                  clickUsers.find((clickedUser) => clickedUser._id === user._id)
-                    ? styles['none']
-                    : ''
-                } ${
-                  selectedUsers.find((selectedUser) => selectedUser._id === user._id)
-                    ? styles['selected']
-                    : ''
-                }`}
-                key={user?._id}
-              >
-                <div>{`${user.user_name} ${user.user_name_last}`}</div>
-                <div>{user.email}</div>
-              </div>
-            ))}
-          </>
-                  )}
+            <Form.Item
+              label="ユーザー名"
+              className={styles["username-form-item"]}
+            >
+              <div className={styles["teamsetting-box-main"]}>
+                <div className={styles["teamsetting-box-container"]}>
+                  <div className={styles["teamsetting-box"]}>
+                    {loading ? (
+                      <div>Loading...</div>
+                    ) : (
+                      <>
+                        {user?.map((user) => (
+                          <div
+                            onClick={() => handleClickUser(user._id)}
+                            className={`${styles["teamsetting-user"]} ${
+                              clickUsers.find(
+                                (clickedUser) => clickedUser._id === user._id
+                              )
+                                ? styles["none"]
+                                : ""
+                            } ${
+                              selectedUsers.find(
+                                (selectedUser) => selectedUser._id === user._id
+                              )
+                                ? styles["selected"]
+                                : ""
+                            }`}
+                            key={user?._id}
+                          >
+                            <div>{`${user.user_name} ${user.user_name_last}`}</div>
+                            <div>{user.email}</div>
+                          </div>
+                        ))}
+                      </>
+                    )}
+                  </div>
+                </div>
+                <div className={styles["teamsetting-btn-main"]}>
+                  <div
+                    className={styles["teamsetting-btn-container"]}
+                    onClick={handleRightClick}
+                  >
+                    <DoubleRightOutlined
+                      className={styles["teamsetting-btn"]}
+                    />
+                  </div>
+                  <div
+                    className={styles["teamsetting-btn-container"]}
+                    onClick={handleLeftClick}
+                  >
+                    <DoubleLeftOutlined className={styles["teamsetting-btn"]} />
+                  </div>
+                </div>
+                <div className={styles["teamsetting-box-container"]}>
+                  <div className={styles["teamsetting-box"]}>
+                    {clickUsers?.map((user) => (
+                      <div
+                        className={`${styles["teamsetting-user"]} ${
+                          selectedUsers.some(
+                            (selectedUser) => selectedUser._id === user._id
+                          )
+                            ? styles["selected"]
+                            : ""
+                        }`}
+                        onClick={() => handleClickUser(user._id)}
+                        key={user?._id}
+                      >
+                        <div>{`${user.user_name} ${user.user_name_last}`}</div>
+                        <div>{user.email}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-
-              <div className={styles["teamsetting-btn-main"]}>
-                <div
-                  className={styles["teamsetting-btn-container"]}
-                  onClick={handleRightClick}
-                >
-                  <DoubleRightOutlined className={styles["teamsetting-btn"]} />
-                </div>
-                <div
-                  className={styles["teamsetting-btn-container"]}
-                  onClick={handleLeftClick}
-                >
-                  <DoubleLeftOutlined className={styles["teamsetting-btn"]} />
-                </div>
-              </div>
-
-              <div className={styles["teamsetting-box-container"]}>
-                <div className={styles["teamsetting-box"]}>
-                  {clickUsers?.map((user) => (
-                    <div
-                      className={`${styles["teamsetting-user"]} ${
-                        selectedUsers.some(
-                          (selectedUser) => selectedUser._id === user._id
-                        )
-                          ? styles["selected"]
-                          : ""
-                      }`}
-                      onClick={() => handleClickUser(user._id)}
-                      key={user?._id}
-                    >
-                      <div>{`${user.user_name} ${user.user_name_last}`}</div>
-                      <div>{user.email}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
+            </Form.Item>
             <Form.Item
               style={{
                 display: "flex",
@@ -377,7 +378,11 @@ const Teamsetting = ({ loginUser }) => {
                 marginTop: "20px",
               }}
             >
-              <Button type="primary" htmlType="submit">
+              <Button
+                type="primary"
+                htmlType="submit"
+                disabled={clickUsers.length === 0}
+              >
                 決定
               </Button>
             </Form.Item>

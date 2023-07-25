@@ -1,10 +1,11 @@
 import { message } from "antd";
 import { Messages } from "../data/message";
 import axios from "axios";
-const API_BASE_URL =
-  "http://localhost:8000";
+const API_BASE_URL = "http://localhost:8000";
 
-// Create a new user
+// 新しいユーザーを作成する
+// パラメータ : ユーザーデータ
+// 戻り値 : ユーザーデータ
 const createUser = async (userData) => {
   try {
     const response = await fetch(`${API_BASE_URL}/user`, {
@@ -22,7 +23,9 @@ const createUser = async (userData) => {
   }
 };
 
-// Get all users
+// すべてのユーザーを取得する
+// パラメータ : なし
+// 戻り値 : ユーザーデータ
 const getUsers = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/user`);
@@ -34,7 +37,9 @@ const getUsers = async () => {
   }
 };
 
-// Update a user
+// ユーザーを更新する
+// パラメータ : ユーザーId, ユーザーデータ
+// 戻り値 : ユーザーデータ
 const updateUser = async (userId, userData) => {
   try {
     const response = await axios.put(
@@ -47,7 +52,9 @@ const updateUser = async (userId, userData) => {
   }
 };
 
-// Delete a user
+// ユーザーを削除する
+// パラメータ : ユーザーId, ユーザーデータ
+// 戻り値 : ユーザーデータ
 const deleteUser = async (userId, userData) => {
   try {
     const response = await fetch(`${API_BASE_URL}/user/${userId}`, {
@@ -64,7 +71,9 @@ const deleteUser = async (userId, userData) => {
   }
 };
 
-// Get all Teams
+// すべてのチームを取得する
+// パラメータ : なし
+// 戻り値 : チームデータ
 const getTeams = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/team`);
@@ -76,4 +85,4 @@ const getTeams = async () => {
   }
 };
 
-export { createUser, getUsers, updateUser, deleteUser,getTeams };
+export { createUser, getUsers, updateUser, deleteUser, getTeams };

@@ -3,7 +3,6 @@ import styles from "../../styles/UserSearch.module.css";
 import UserSearchtable from "./UserSearchtable";
 import { getTeams, getUsers } from "../../api/api";
 import { Button, Form, Input, Select } from "antd";
-import { Helmet } from "react-helmet";
 
 const UserSearch = ({ loginUser }) => {
   const [userData, setUserData] = useState([]);
@@ -66,11 +65,6 @@ const UserSearch = ({ loginUser }) => {
     label: team.team_name,
   }));
   return (
-    <>
-    <Helmet>
-        <title>User Management</title>
-        <link rel="icon" type="image/png" href="/path/to/favicon.png" />
-    </Helmet>
     <div className={styles["usermanagement-form-main"]}>
       <div className={styles["usermanagement-form-container"]}>
         <Form
@@ -160,7 +154,6 @@ const UserSearch = ({ loginUser }) => {
         />
       </div>
     </div>
-    </>
   );
 };
 

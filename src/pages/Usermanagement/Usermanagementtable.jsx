@@ -21,6 +21,7 @@ import styles from "../../styles/Usermanagementtable.module.css";
 import { Helmet } from "react-helmet";
 
 const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
+  // ステート変数の定義
   const [deleteModalShow, setDeleteModalShow] = useState(false);
   const [editModalShow, setEditModalShow] = useState(false);
   const [selectedUser, setselectedUser] = useState("");
@@ -29,35 +30,35 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef(null);
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const [emptySearchResults, setEmptySearchResults] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+  // 「検索」ボタンをクリックするか、「Enter」を押す時、検索処理
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
     setSearchText(selectedKeys[0]);
     setSearchedColumn(dataIndex);
 
-    const searchTerm = selectedKeys[0] ? selectedKeys[0].toLowerCase() : ""; // Check if selectedKeys[0] is defined
-
+    const searchTerm = selectedKeys[0] ? selectedKeys[0].toLowerCase() : "";
     const filteredData = data.filter((record) =>
       record[dataIndex]
         ? record[dataIndex].toString().toLowerCase().includes(searchTerm)
         : ""
     );
-
     setEmptySearchResults(filteredData.length === 0);
-
     if (filteredData.length === 0) {
-      message.warning("データが見つかりません");
+      message.warning(Messages.M021);
     }
   };
 
+  // 「キャンセル」ボタンを押す時、リセット処理
   const handleReset = (clearFilters) => {
     clearFilters();
     setSearchText("");
   };
 
+  // 検索フィールドのプロパティを設定する
   const getColumnSearchProps = (dataIndex, placeholder) => ({
     filterDropdown: ({
       setSelectedKeys,
@@ -119,6 +120,7 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
       ),
   });
 
+  // 編集処理
   const handleEdit = async () => {
     try {
       const values = await form.validateFields();
@@ -133,9 +135,7 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
         update_user: loginUserid,
         update_datetime: new Date().toISOString(),
       };
-      const editUser = await updateUser(selectedUserId, userData);
-      console.log("editdata", editUser);
-
+      await updateUser(selectedUserId, userData);
       message.success(Messages.M008);
       handleModalCancel();
       fetchUsers();
@@ -145,12 +145,12 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
     }
   };
 
+  // ユーザー編集用のモーダルを開く処理
   const handleEditUser = async (userId) => {
     form.resetFields();
     try {
       const user = await data.find((user) => user._id === userId);
       setselectedUser(user);
-      console.log("selecteduser", user);
       form.setFieldsValue({
         firstName: user.user_name,
         lastName: user.user_name_last,
@@ -163,6 +163,7 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
     setEditModalShow(true);
   };
 
+  // ユーザー削除処理
   const handleDelete = async (userId) => {
     try {
       const selectedUser = data.find((user) => user._id === userId);
@@ -190,33 +191,39 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
     }
   };
 
+  // ユーザー削除用のモーダルを表示する処理
   const deleteshowModal = (userId) => {
     setSelectedUserId(userId);
     setDeleteModalShow(true);
   };
 
+  // ユーザー編集用のモーダルを表示する処理
   const editshowModal = (userId) => {
     setSelectedUserId(userId);
     setEditModalShow(true);
     handleEditUser(userId);
   };
 
+  // 削除モーダルの「OK」ボタン処理
   const handleModalOk = () => {
     if (selectedUserId) {
       handleDelete(selectedUserId);
     }
   };
 
+  // モーダルのキャンセルボタン処理
   const handleModalCancel = () => {
     setDeleteModalShow(false);
     setEditModalShow(false);
   };
 
+  // 表のカラム定義
   const columns = [
     {
       title: "番号",
       dataIndex: "_id",
       key: "id",
+      align : "center",
       render: (_, record, index) => {
         const pageIndex = currentPage === 1 ? 0 : (currentPage - 1) * 10;
         return pageIndex + index + 1;
@@ -226,24 +233,28 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
       title: "ユーザー名",
       dataIndex: "user_name",
       key: "username",
+      align : "center",
       render: (_, record) => `${record.user_name} ${record.user_name_last}`,
     },
     {
       title: "メールアドレス",
       dataIndex: "email",
       key: "email",
+      align : "center",
       ...getColumnSearchProps("email", "メールアドレス"),
     },
     {
       title: "ユーザー権限",
       dataIndex: "user_level",
       key: "role",
+      align : "center",
       sorter: (a, b) => a.user_level.localeCompare(b.user_level),
       sortDirections: ["ascend", "descend"],
     },
     {
       title: "操作",
       key: "action",
+      align : "center",
       render: (_, record) => (
         <Space size="middle">
           <Button
@@ -259,16 +270,18 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
     },
   ];
 
+  // ページネーションの変更時の処理
   const onChange = (pagination, filters, sorter) => {
-    setCurrentPage(pagination.current); // Update the current page
+    setCurrentPage(pagination.current);
   };
 
+  // ページング数と現在のページを設定する
   const paginationConfig = {
     pageSize: 10,
-    current: currentPage, // Set the current page
+    current: currentPage,
   };
 
-  // Filter data based on del_flg property
+  // フィルターされたデータの取得
   const filteredData = data?.filter((user) => user.del_flg === "0");
 
   return (
@@ -277,14 +290,16 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
         <title>User Management</title>
         <link rel="icon" type="image/png" href="/path/to/favicon.png" />
       </Helmet>
-      <Table
-        columns={columns}
-        dataSource={filteredData.map((user) => ({ ...user, key: user._id }))}
-        loading={loading}
-        pagination={paginationConfig}
-        className={styles.table}
-        onChange={onChange}
-      />
+      <div className={styles.responsiveTable}>
+        <Table
+          columns={columns}
+          dataSource={filteredData.map((user) => ({ ...user, key: user._id }))}
+          loading={loading}
+          onChange={onChange}
+          pagination={paginationConfig}
+          className={styles.table}
+        />
+      </div>
       <Modal
         centered
         open={deleteModalShow}

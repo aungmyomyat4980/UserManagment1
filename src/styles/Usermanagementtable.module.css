@@ -1,11 +1,11 @@
 .table {
   & thead {
-    background-color: #707070; /* Set the background color for the table header */
-    text-align: center; /* Center align the text in the table header */
+    background-color: #707070;
+    text-align: center;
   }
 
   & tbody td:first-child {
-    text-align: right; /* Center align the text in the first column of the table body */
+    text-align: right;
   }
 }
 
@@ -57,10 +57,14 @@
 }
 
 .btn {
-    margin-right: 20px;
+  margin-right: 20px;
 }
 
 .confrimation-message {
   text-align: center;
   font-size: 18px;
+}
+
+.responsiveTable {
+  overflow-x: auto;
 }

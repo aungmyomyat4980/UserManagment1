@@ -1,4 +1,4 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -16,7 +16,7 @@ function App() {
     localStorage.getItem("isLoggedIn") === "true" ? true : false
   );
 
-  // Read loginUsercheck from localStorage on component mount
+  // コンポーネントのマウントに localStorage から loginUsercheck を読み取る
   const [loginUsercheck, setLoginUsercheck] = useState(
     localStorage.getItem("loginUsercheck") === "true" ? true : false
   );
@@ -33,15 +33,15 @@ function App() {
   ]);
 
   useEffect(() => {
-    // Save the isLoggedIn state to localStorage whenever it changes
+    // isLoggedIn 状態が変更されるたびに、それを localStorage に保存する
     localStorage.setItem("isLoggedIn", isLoggedIn);
   }, [isLoggedIn]);
 
   useEffect(() => {
-    // Save the loginUsercheck state to localStorage whenever it changes
+    // 変更されるたびに、loginUsercheck 状態を localStorage に保存する
     localStorage.setItem("loginUsercheck", loginUsercheck);
   }, [loginUsercheck]);
-  
+
   const handleLogin = (
     email,
     id,
@@ -92,7 +92,9 @@ function App() {
         />
         <Route
           path="/menu"
-          element={<ProtectedRoute element={Menu} loginUsercheck={loginUsercheck} />}
+          element={
+            <ProtectedRoute element={Menu} loginUsercheck={loginUsercheck} />
+          }
         />
         <Route
           path="/usersearch"

@@ -7,17 +7,23 @@ import { Messages } from "../../data/message";
 import { Helmet } from "react-helmet";
 
 const Usermanagement = ({ loginUser }) => {
+  // APIから取得したユーザーデータを保持する
   const [userData, setUserData] = useState([]);
+  // API呼び出し中の読み込み状態を待つ
   const [loading, setLoading] = useState(false);
-  const [form] = Form.useForm(); // Create a form instance
+  // フォームインスタンスを作成する
+  const [form] = Form.useForm();
+  // メール検証用の正規表現
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  const [filteredRowCount, setFilteredRowCount] = useState(0); 
+  const [filteredRowCount, setFilteredRowCount] = useState(0);
 
+  // useEffect フックを使用してコンポーネント マウントでユーザーを取得する
   useEffect(() => {
     fetchUsers();
   }, []);
 
+  // すべてのユーザーを取得する
   const fetchUsers = async () => {
     try {
       setLoading(true);
@@ -30,16 +36,20 @@ const Usermanagement = ({ loginUser }) => {
     }
   };
 
+  // userData が変更されたときにフィルター処理された行数を計算する
   useEffect(() => {
-    // Calculate the filtered row count when userData changes
     setFilteredRowCount(userData.filter((user) => user.del_flg === "0").length);
   }, [userData]);
 
+  // 新しいユーザーを作成するためのフォーム送信を処理する機能
   const handleFormSubmit = async (values) => {
     try {
       setLoading(true);
       const emailExists = userData.some((user) => user.email === values.email);
 
+      // メールがユーザーデータに既に存在するかどうか確認する
+      // パラメータ : 入力したユーザーデータ
+      // 戻り値 : 既にメールが存在するメッセージ
       if (emailExists) {
         form.setFields([
           {
@@ -51,6 +61,9 @@ const Usermanagement = ({ loginUser }) => {
         return;
       }
 
+      // 新しいユーザーを作成する
+      // パラメータ : 入力したユーザーデータ
+      // 戻り値 : 成功または失敗のメッセージ
       const newUserData = {
         user_name: values.firstName,
         user_name_last: values.lastName,
@@ -61,9 +74,11 @@ const Usermanagement = ({ loginUser }) => {
         create_datetime: new Date().toISOString(),
       };
 
-      const createdUser = await createUser(newUserData);
-      console.log("User created:", createdUser);
+      // APIを使用して新しいユーザーを作成する
+      await createUser(newUserData);
       message.success(Messages.M006);
+
+      // ユーザーを再取得し、フォームフィールドをリセットする
       fetchUsers();
       form.resetFields();
     } catch (error) {
@@ -76,10 +91,10 @@ const Usermanagement = ({ loginUser }) => {
 
   return (
     <>
-    <Helmet>
+      <Helmet>
         <title>User Management</title>
         <link rel="icon" type="image/png" href="/path/to/favicon.png" />
-    </Helmet>
+      </Helmet>
       <div className={styles["usermanagement-form-main"]}>
         <div className={styles["usermanagement-form-container"]}>
           <Form
@@ -145,10 +160,10 @@ const Usermanagement = ({ loginUser }) => {
           </Form>
         </div>
         <p className={styles["row-count"]} style={{ color: "green" }}>
-            Total: {filteredRowCount} rows
-          </p>
+          Total: {filteredRowCount} rows
+        </p>
         <div className={styles["usermanagement-table-main"]}>
-        <Usermanagementtable
+          <Usermanagementtable
             data={userData}
             loading={loading}
             fetchUsers={fetchUsers}

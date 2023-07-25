@@ -17,10 +17,6 @@
   margin-top: 15px;
 }
 
-.teamsetting-label {
-  margin-left: 330px;
-}
-
 .teamsetting-btn:hover {
   background-color: #1677ffcd;
 }
@@ -59,7 +55,7 @@
   display: none;
 }
 
-.teamsetting-user.selected{
+.teamsetting-user.selected {
   background-color: #f5f5f5;
   font-weight: bold;
 }
@@ -68,4 +64,14 @@
   display: flex;
   justify-content: center;
   margin-left: 245px;
+}
+
+.username-form-item {
+  display: flex;
+  justify-content: center;
+  margin-left: -75px;
+}
+
+.teamsetting-label {
+  margin-left: 330px;
 }

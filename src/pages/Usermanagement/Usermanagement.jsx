@@ -159,9 +159,6 @@ const Usermanagement = ({ loginUser }) => {
             </Form.Item>
           </Form>
         </div>
-        <p className={styles["row-count"]} style={{ color: "green" }}>
-          Total: {filteredRowCount} rows
-        </p>
         <div className={styles["usermanagement-table-main"]}>
           <Usermanagementtable
             data={userData}

@@ -1,4 +1,4 @@
-import React, { useState, useRef,useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Table,
   Space,
@@ -33,37 +33,43 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const [emptySearchResults, setEmptySearchResults] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isSearchActive, setIsSearchActive] = useState(false);
+  const [searchedData, setSearchedData] = useState(data);
+  let initialUndeletedUsersCount = 0;
+  if (data) {
+    initialUndeletedUsersCount = data.filter(
+      (user) => user.del_flg === "0"
+    ).length;
+  }
   const [totalFilteredRows, setTotalFilteredRows] = useState(
-    data.filter((user) => user.del_flg === "0").length
+    initialUndeletedUsersCount
   );
-
-  useEffect(() => {
-    setTotalFilteredRows(data.filter((user) => user.del_flg === "0").length);
-  }, [data]);
 
   // 「検索」ボタンをクリックするか、「Enter」を押す時、検索処理
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
     setSearchText(selectedKeys[0]);
     setSearchedColumn(dataIndex);
-
     const searchTerm = selectedKeys[0] ? selectedKeys[0].toLowerCase() : "";
     const filteredData = data.filter((record) =>
       record[dataIndex]
         ? record[dataIndex].toString().toLowerCase().includes(searchTerm)
         : ""
     );
-    setEmptySearchResults(filteredData.length === 0);
-    if (filteredData.length === 0) {
-      message.warning(Messages.M021);
-    }
-    setTotalFilteredRows(filteredData.length);
+    setSearchedData(filteredData);
+    setIsSearchActive(true);
+    setTotalFilteredRows(
+      filteredData.filter((user) => user.del_flg === "0").length
+    );
   };
 
   // 「キャンセル」ボタンを押す時、リセット処理
   const handleReset = (clearFilters) => {
     clearFilters();
     setSearchText("");
+    setIsSearchActive(false);
+    setSearchedData(data);
+    setTotalFilteredRows(initialUndeletedUsersCount);
   };
 
   // 検索フィールドのプロパティを設定する
@@ -197,6 +203,9 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
       message.success(Messages.M012);
       console.error("Error updating user:", error);
     }
+    if (isSearchActive) {
+      setTotalFilteredRows((prevTotal) => prevTotal - 1);
+    }
   };
 
   // ユーザー削除用のモーダルを表示する処理
@@ -276,16 +285,16 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
   // ページネーションの変更時の処理
   const onChange = (pagination, filters, sorter) => {
     setCurrentPage(pagination.current);
-
-  // Update the total filtered rows count after pagination or sorting
-  const searchTerm = searchText.toLowerCase();
-  const filteredData = data.filter((record) =>
-    record[searchedColumn]
-      ? record[searchedColumn].toString().toLowerCase().includes(searchTerm)
-      : ""
-  );
-  setTotalFilteredRows(filteredData.filter((user) => user.del_flg === "0").length);
-};
+    const searchTerm = searchText.toLowerCase();
+    const filteredData = data.filter((record) =>
+      record[searchedColumn]
+        ? record[searchedColumn].toString().toLowerCase().includes(searchTerm)
+        : ""
+    );
+    setTotalFilteredRows(
+      filteredData.filter((user) => user.del_flg === "0").length
+    );
+  };
 
   // ページング数と現在のページを設定する
   const paginationConfig = {
@@ -302,8 +311,9 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
         <title>User Management</title>
         <link rel="icon" type="image/png" href="/path/to/favicon.png" />
       </Helmet>
-      <div style={{ marginTop: "10px" }}>
-        Total Rows: {totalFilteredRows}
+      <div className={styles["row-count"]} style={{ color: "green" }}>
+        Total Rows:{" "}
+        {isSearchActive ? totalFilteredRows : initialUndeletedUsersCount}
       </div>
       <div className={styles.responsiveTable}>
         <Table

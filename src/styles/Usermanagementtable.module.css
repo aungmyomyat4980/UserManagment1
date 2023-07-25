@@ -68,3 +68,10 @@
 .responsiveTable {
   overflow-x: auto;
 }
+
+.row-count {
+  text-align: right;
+  margin-top: -60px;
+  margin-bottom: 30px;
+  margin-right: 30px;
+}

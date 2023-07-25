@@ -34,6 +34,7 @@ const Teamsetting = ({ loginUser }) => {
   const [searchValues, setSearchValues] = useState([]);
   const pageSize = 6; // ページネーションの設定
   const [currentPage, setCurrentPage] = useState(1);
+  
 
   // コンポーネントがマウントされたときにユーザーデータとチームデータの取得
   useEffect(() => {

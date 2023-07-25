@@ -120,7 +120,6 @@ const Teamsetting = ({ loginUser }) => {
 
     // ユーザーデータを更新して再取得
     fetchUsers();
-    //setSelectedUsers([]);
     // クリックされたユーザーデータをリセット
     setClickUsers([]);
   };

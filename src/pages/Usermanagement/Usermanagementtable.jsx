@@ -223,7 +223,6 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
       title: "番号",
       dataIndex: "_id",
       key: "id",
-      align : "center",
       render: (_, record, index) => {
         const pageIndex = currentPage === 1 ? 0 : (currentPage - 1) * 10;
         return pageIndex + index + 1;
@@ -233,28 +232,24 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
       title: "ユーザー名",
       dataIndex: "user_name",
       key: "username",
-      align : "center",
       render: (_, record) => `${record.user_name} ${record.user_name_last}`,
     },
     {
       title: "メールアドレス",
       dataIndex: "email",
       key: "email",
-      align : "center",
       ...getColumnSearchProps("email", "メールアドレス"),
     },
     {
       title: "ユーザー権限",
       dataIndex: "user_level",
       key: "role",
-      align : "center",
       sorter: (a, b) => a.user_level.localeCompare(b.user_level),
       sortDirections: ["ascend", "descend"],
     },
     {
       title: "操作",
       key: "action",
-      align : "center",
       render: (_, record) => (
         <Space size="middle">
           <Button

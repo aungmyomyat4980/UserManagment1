@@ -31,17 +31,19 @@ const UserSearch = ({ loginUser }) => {
 
   const handleSearch = (values) => {
     const { firstName, lastName, email, role, team } = values;
-  
+
     let newData = [...userData]; // Create a copy of userData array
-  
+
     newData = newData.filter((user) => {
       const firstNameMatch = !firstName || user.user_name.includes(firstName);
       const lastNameMatch = !lastName || user.user_name_last.includes(lastName);
       const emailMatch = !email || user.email.includes(email);
-      const roleMatch = !role || user.user_level === role || role.toLowerCase() === "all";
-      const teamMatch = !team || user.team_name === team || team.toLowerCase() === "all";
+      const roleMatch =
+        !role || user.user_level === role || role.toLowerCase() === "all";
+      const teamMatch =
+        !team || user.team_name === team || team.toLowerCase() === "all";
       const delFlgMatch = user.del_flg === "0"; // Check if del_flg is "0"
-  
+
       return (
         firstNameMatch &&
         lastNameMatch &&
@@ -51,10 +53,10 @@ const UserSearch = ({ loginUser }) => {
         delFlgMatch
       );
     });
-  
+
     setFilteredData(newData); // Update the filteredData state
   };
-  
+
   const allTeam = {
     id: "all",
     team_name: "All",

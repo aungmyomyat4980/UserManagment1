@@ -402,14 +402,7 @@ const Teamsetting = ({ loginUser }) => {
                   </div>
                 </div>
               </Form.Item>
-              <Form.Item
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  marginTop: "20px",
-                  marginLeft: "80px"
-                }}
-              >
+              <Form.Item className={styles["submit-button"]}>
                 <Button
                   type="primary"
                   htmlType="submit"

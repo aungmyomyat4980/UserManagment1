@@ -38,6 +38,13 @@
   margin-top: -13px;
 }
 
+.submit-button{
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  margin-left: 80px;
+}
+
 .teamsetting-user {
   cursor: pointer;
   padding-top: 10px;
@@ -107,6 +114,10 @@
 
   .teamsetting-user {
     margin: 0.5rem 0;
+  }
+
+  .submit-button{
+    margin-left: 20px;
   }
 
   .usermanagement-form-item,

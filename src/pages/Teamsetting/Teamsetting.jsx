@@ -19,8 +19,9 @@ import { getTeams, getUsers, updateUser } from "../../api/api";
 import { Messages } from "../../data/message";
 import { Helmet } from "react-helmet";
 
+const { Search } = Input;
+
 const Teamsetting = ({ loginUser }) => {
-  // ステート変数の定義
   const [userData, setUserData] = useState([]);
   const [teamData, setTeamData] = useState([]);
   const [searchteamData, setsearchteamData] = useState([]);
@@ -32,16 +33,15 @@ const Teamsetting = ({ loginUser }) => {
   const [teamSearchInput, setTeamSearchInput] = useState("");
   const [form] = Form.useForm();
   const [searchValues, setSearchValues] = useState([]);
-  const pageSize = 6; // ページネーションの設定
+  const pageSize = 6;
   const [currentPage, setCurrentPage] = useState(1);
-  
 
-  // コンポーネントがマウントされたときにユーザーデータとチームデータの取得
+  // get Data from the API
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  // すべてのユーザーとチームを取得する
+  // Function to fetch user data and team data from the API when the component is mounted.
   const fetchUsers = async () => {
     try {
       setLoading(true);
@@ -58,17 +58,15 @@ const Teamsetting = ({ loginUser }) => {
     }
   };
 
-  // ユーザーをクリックした際の処理
+  // Function to handle the click event on a user in the user list.
   const handleClickUser = (userId) => {
     const clickedUser = userData.find((user) => user._id === userId);
 
     if (clickedUser) {
-      // 選択されたユーザーがすでに選択済みかどうかを確認
       const userAlreadySelected = selectedUsers.some(
         (selectedUser) => selectedUser._id === userId
       );
 
-      // ユーザーが選択されていない場合は追加し、選択されている場合は選択解除する
       if (!userAlreadySelected) {
         setSelectedUsers((prevSelectedUsers) => [
           ...prevSelectedUsers,
@@ -82,97 +80,94 @@ const Teamsetting = ({ loginUser }) => {
     }
   };
 
-  // チーム名検索フォームの入力値を処理
+  // Function to handle the search input for team names and filter the teamData accordingly.
   const onSearch = (value) => {
-    // チーム名検索入力値の更新
     setTeamSearchInput(value);
 
-    // 小文字検索文字列を作成
+    // Convert the search input and team names to lowercase for case-insensitive search
     const lowerCaseSearch = value.toLowerCase();
 
-    // チームデータを検索して結果を更新
     const filteredTeams = teamData.filter((team) =>
       team.team_name.toLowerCase().includes(lowerCaseSearch)
     );
+
     setsearchteamData(filteredTeams);
   };
 
-  // フォームのサブミット時の処理
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    // Perform any other actions when the page changes
+  };
+
+  // Function to handle the form submission when the user selects a team for the selected users.
   const handleFormSubmit = async (values) => {
-    // 選択されたユーザーデータを更新
     const newUserData = clickUsers.map((user) => ({
-      ...user,
+      ...user, // Include the existing properties from the user object
       del_flg: "0",
       update_user: loginUser[0]._id,
       update_datetime: new Date().toISOString(),
       team_name: values.teamSelect,
     }));
-
+    // const selectedTeam = values.teamSelect;
     try {
-      // 選択されたユーザーデータを更新するAPIを呼び出す
       for (const user of newUserData) {
         await updateUser(user._id, user);
       }
     } catch (error) {
       console.error("Error updating users:", error);
     }
-    // 成功メッセージを表示する
     message.success(Messages.M008);
 
-    // ユーザーデータを更新して再取得
+    //setClickUsers([]);
     fetchUsers();
-    // クリックされたユーザーデータをリセット
+    //setSelectedUsers([]);
     setClickUsers([]);
   };
 
-  // チーム検索のフォームサブミット時の処理
+  // Function to handle the form submission when the user adds search values for team names.
   const handleSearchSubmit = async (values) => {
-    // 選択されたチームを取得し、検索値を更新する
+    // Get the new search value from the input
     const selectedTeam = values.teamSelect === "なし" ? "" : values.teamSelect;
     const newSearchValue = values.teamSearchInput;
 
+    // Add the new search value to the existing searchValues array
     setSearchValues((prevSearchValues) => [
       ...prevSearchValues,
       newSearchValue,
     ]);
-
+    // Filter the userData based on the updated searchValues array
     let filteredUserData;
     if (searchValues.includes("なし")) {
-      // "なし" チームを選択している場合は、チーム名が空または選択されたチーム名を持つユーザーデータをフィルタリング
+      // If "なし" is in the searchValues array, include users with no team_name
       filteredUserData = userData.filter(
         (user) => !user.team_name || searchValues.includes(user.team_name)
       );
     } else {
-      // "なし" チーム以外のチームを選択している場合は、選択されたチーム名を持つユーザーデータをフィルタリング
+      // If "なし" is not in the searchValues array, only include users with the exact team_name that matches the searchValue
       filteredUserData = userData.filter(
         (user) => searchValues.includes(user.team_name) && user.team_name
       );
     }
 
-    // フィルタリングされたユーザーデータを更新する
     setUser(filteredUserData);
-    // クリックされたユーザーデータをリセットする
     setClickUsers([]);
-    // モーダルを非表示にする
     setIsModalVisible(false);
   };
 
-  // 右矢印ボタンクリック時の処理
+  // Function to move selected users from the left box to the right box.
   const handleRightClick = () => {
     if (!loading) {
-      // ロード中でなければ、選択されたユーザーデータをクリックされたユーザーデータに追加する
       setClickUsers((prevUsers) => {
         const uniqueSelectedUsers = selectedUsers.filter(
           (selectedUser) => !prevUsers.includes(selectedUser)
         );
         return [...prevUsers, ...uniqueSelectedUsers];
       });
-      // 選択されたユーザーデータをリセットする
       setSelectedUsers([]);
     }
   };
 
-  // 左矢印ボタンクリック時の処理
+  // Function to move selected users back from the right box to the left box.
   const handleLeftClick = () => {
     if (!loading) {
       setClickUsers((prevClickUsers) => {
@@ -182,43 +177,42 @@ const Teamsetting = ({ loginUser }) => {
         );
         return updatedClickUsers;
       });
-      // 選択されたユーザーデータをリセットする
       setSelectedUsers([]);
     }
   };
 
-  // チェックボックスの変更時の処理
+  // Function to handle the checkbox change event for team names in the team search modal.
   const onChange = (e, record) => {
+    // Toggle filter based on team_name
     if (e.target.checked) {
-      // チェックがオンになった場合、選択されたチーム名を検索値に追加する
+      // Checkbox is checked, add the team_name to the search value
       setSearchValues((prevSearchValues) => [
         ...prevSearchValues,
         record.team_name,
       ]);
     } else {
-      // チェックがオフになった場合、選択されたチーム名を検索値から削除
+      // Checkbox is unchecked, remove the team_name from the search value
       setSearchValues((prevSearchValues) =>
         prevSearchValues.filter((value) => value !== record.team_name)
       );
     }
   };
 
-  // モーダルの表示処理
+  // Function to show the team search modal when the search icon button is clicked.
   const handleShowModal = () => {
     setIsModalVisible(true);
   };
 
-  // テーブルのカラム定義
   const columns = [
     {
       title: "番号",
       dataIndex: "id",
+      key: "id",
       render: (_, record, index) => (
         <Checkbox onChange={(e) => onChange(e, record, index)}>
           {index + 1 + (currentPage - 1) * pageSize}
         </Checkbox>
       ),
-      key: "index",
     },
     {
       title: "チーム名",
@@ -227,18 +221,12 @@ const Teamsetting = ({ loginUser }) => {
     },
   ];
 
-  // ページが変更されたときに他のアクションを実行する
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
-  // "なし" チームの静的データ
+  // Static data for "なし" team
   const noneTeam = {
     id: "none",
     team_name: "なし",
   };
 
-  // チーム検索用のデータを準備する
   let combinedTeamData;
   if (teamSearchInput.length === 0) {
     combinedTeamData = [noneTeam, ...teamData];
@@ -246,7 +234,10 @@ const Teamsetting = ({ loginUser }) => {
     combinedTeamData = searchteamData;
   }
 
-  // チーム選択のオプションを作成
+  const paginationConfig = {
+    pageSize: 6,
+  };
+
   const teamOptions = teamData.map((team) => ({
     value: team.team_name,
     label: team.team_name,
@@ -312,115 +303,123 @@ const Teamsetting = ({ loginUser }) => {
               </Button>
             </Form.Item>
           </Modal>
-          <Form form={form} onFinish={handleFormSubmit}>
-            <Form.Item
-              name="teamSelect"
-              label="チームに移動"
-              className={styles["usermanagement-form-item"]}
-              rules={[
-                {
-                  required: true,
-                  message: "チームを選択してください", // Error message when the select box is not chosen
-                },
-              ]}
-            >
-              <Select
-                style={{ width: "250px" }}
-                className={styles["usermanagement-input"]}
-                options={teamOptions}
-              />
-            </Form.Item>
-            <Form.Item
-              label="ユーザー名"
-              className={styles["username-form-item"]}
-            >
-              <div className={styles["teamsetting-box-main"]}>
-                <div className={styles["teamsetting-box-container"]}>
-                  <div className={styles["teamsetting-box"]}>
-                    {loading ? (
-                      <div>Loading...</div>
-                    ) : (
-                      <>
-                        {user?.map((user) => (
-                          <div
-                            onClick={() => handleClickUser(user._id)}
-                            className={`${styles["teamsetting-user"]} ${
-                              clickUsers.find(
-                                (clickedUser) => clickedUser._id === user._id
-                              )
-                                ? styles["none"]
-                                : ""
-                            } ${
-                              selectedUsers.find(
-                                (selectedUser) => selectedUser._id === user._id
-                              )
-                                ? styles["selected"]
-                                : ""
-                            }`}
-                            key={user?._id}
-                          >
-                            <div>{`${user.user_name} ${user.user_name_last}`}</div>
-                            <div>{user.email}</div>
-                          </div>
-                        ))}
-                      </>
-                    )}
-                  </div>
-                </div>
-                <div className={styles["teamsetting-btn-main"]}>
-                  <div
-                    className={styles["teamsetting-btn-container"]}
-                    onClick={handleRightClick}
-                  >
-                    <DoubleRightOutlined
-                      className={styles["teamsetting-btn"]}
-                    />
-                  </div>
-                  <div
-                    className={styles["teamsetting-btn-container"]}
-                    onClick={handleLeftClick}
-                  >
-                    <DoubleLeftOutlined className={styles["teamsetting-btn"]} />
-                  </div>
-                </div>
-                <div className={styles["teamsetting-box-container"]}>
-                  <div className={styles["teamsetting-box"]}>
-                    {clickUsers?.map((user) => (
-                      <div
-                        className={`${styles["teamsetting-user"]} ${
-                          selectedUsers.some(
-                            (selectedUser) => selectedUser._id === user._id
-                          )
-                            ? styles["selected"]
-                            : ""
-                        }`}
-                        onClick={() => handleClickUser(user._id)}
-                        key={user?._id}
-                      >
-                        <div>{`${user.user_name} ${user.user_name_last}`}</div>
-                        <div>{user.email}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </Form.Item>
-            <Form.Item
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginTop: "20px",
-              }}
-            >
-              <Button
-                type="primary"
-                htmlType="submit"
-                disabled={clickUsers.length === 0}
+          <div className={styles["div-color"]}>
+            <Form form={form} onFinish={handleFormSubmit}>
+              <Form.Item
+                name="teamSelect"
+                className={styles["usermanagement-form-item"]}
+                rules={[
+                  {
+                    required: true,
+                    message: "チームを選択してください", // Error message when the select box is not chosen
+                  },
+                ]}
               >
-                決定
-              </Button>
-            </Form.Item>
-          </Form>
+                <div className={styles["selectbox-label"]}>
+                  <label>チームに移動</label>
+                </div>
+                <Select
+                  style={{ width: "250px" }}
+                  className={styles["usermanagement-input"]}
+                  options={teamOptions}
+                />
+              </Form.Item>
+              <Form.Item>
+                <div className={styles["teamsetting-box-main"]}>
+                  <p htmlFor="teamSelect" className={styles["user-name"]}>
+                    ユーザー名 :{" "}
+                  </p>
+                  <div className={styles["teamsetting-box-container"]}>
+                    <div className={styles["teamsetting-box"]}>
+                      {loading ? (
+                        <div>Loading...</div>
+                      ) : (
+                        <>
+                          {user?.map((user) => (
+                            <div
+                              onClick={() => handleClickUser(user._id)}
+                              className={`${styles["teamsetting-user"]} ${
+                                clickUsers.find(
+                                  (clickedUser) => clickedUser._id === user._id
+                                )
+                                  ? styles["none"]
+                                  : ""
+                              } ${
+                                selectedUsers.find(
+                                  (selectedUser) =>
+                                    selectedUser._id === user._id
+                                )
+                                  ? styles["selected"]
+                                  : ""
+                              }`}
+                              key={user?._id}
+                            >
+                              <div>{`${user.user_name} ${user.user_name_last}`}</div>
+                              <div>{user.email}</div>
+                            </div>
+                          ))}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div className={styles["teamsetting-btn-main"]}>
+                    <div
+                      className={styles["teamsetting-btn-container"]}
+                      onClick={handleRightClick}
+                    >
+                      <DoubleRightOutlined
+                        className={styles["teamsetting-btn"]}
+                      />
+                    </div>
+                    <div
+                      className={styles["teamsetting-btn-container"]}
+                      onClick={handleLeftClick}
+                    >
+                      <DoubleLeftOutlined
+                        className={styles["teamsetting-btn"]}
+                      />
+                    </div>
+                  </div>
+                  <div className={styles["teamsetting-box-container"]}>
+                    <div className={styles["teamsetting-box"]}>
+                      {clickUsers?.map((user) => (
+                        <div
+                          className={`${styles["teamsetting-user"]} ${
+                            selectedUsers.some(
+                              (selectedUser) => selectedUser._id === user._id
+                            )
+                              ? styles["selected"]
+                              : ""
+                          }`}
+                          onClick={() => handleClickUser(user._id)}
+                          key={user?._id}
+                        >
+                          <div>{`${user.user_name} ${user.user_name_last}`}</div>
+                          <div>{user.email}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </Form.Item>
+              <Form.Item
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginTop: "20px",
+                  marginLeft: "80px"
+                }}
+              >
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  disabled={clickUsers.length === 0}
+                >
+                  決定
+                </Button>
+              </Form.Item>
+            </Form>
+          </div>
         </div>
       </div>
     </>

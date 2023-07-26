@@ -48,9 +48,12 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
   // 「検索」ボタンをクリックするか、「Enter」を押す時、検索処理
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
-    setSearchText(selectedKeys[0]);
+    const searchTerm =
+      selectedKeys[0] && typeof selectedKeys[0] === "string"
+        ? selectedKeys[0].toLowerCase()
+        : "";
+    setSearchText(searchTerm);
     setSearchedColumn(dataIndex);
-    const searchTerm = selectedKeys[0] ? selectedKeys[0].toLowerCase() : "";
     const filteredData = data.filter((record) =>
       record[dataIndex]
         ? record[dataIndex].toString().toLowerCase().includes(searchTerm)
@@ -58,9 +61,10 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
     );
     setSearchedData(filteredData);
     setIsSearchActive(true);
-    setTotalFilteredRows(
-      filteredData.filter((user) => user.del_flg === "0").length
-    );
+    const totalFilteredRows = filteredData.filter(
+      (user) => user.del_flg === "0"
+    ).length;
+    setTotalFilteredRows(totalFilteredRows);
   };
 
   // 「キャンセル」ボタンを押す時、リセット処理
@@ -312,8 +316,8 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
         <link rel="icon" type="image/png" href="/path/to/favicon.png" />
       </Helmet>
       <div className={styles["row-count"]} style={{ color: "green" }}>
-        Total Rows:{" "}
-        {isSearchActive ? totalFilteredRows : initialUndeletedUsersCount}
+        Total :{" "}
+        {isSearchActive ? totalFilteredRows : initialUndeletedUsersCount} rows{" "}
       </div>
       <div className={styles.responsiveTable}>
         <Table

@@ -19,9 +19,8 @@ import { getTeams, getUsers, updateUser } from "../../api/api";
 import { Messages } from "../../data/message";
 import { Helmet } from "react-helmet";
 
-const { Search } = Input;
-
 const Teamsetting = ({ loginUser }) => {
+  // ステート変数の定義
   const [userData, setUserData] = useState([]);
   const [teamData, setTeamData] = useState([]);
   const [searchteamData, setsearchteamData] = useState([]);
@@ -33,15 +32,15 @@ const Teamsetting = ({ loginUser }) => {
   const [teamSearchInput, setTeamSearchInput] = useState("");
   const [form] = Form.useForm();
   const [searchValues, setSearchValues] = useState([]);
-  const pageSize = 6;
+  const pageSize = 6; // ページネーションの設定
   const [currentPage, setCurrentPage] = useState(1);
 
-  // get Data from the API
+  // コンポーネントがマウントされたときにユーザーデータとチームデータの取得
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  // Function to fetch user data and team data from the API when the component is mounted.
+  // すべてのユーザーとチームを取得する
   const fetchUsers = async () => {
     try {
       setLoading(true);
@@ -58,15 +57,17 @@ const Teamsetting = ({ loginUser }) => {
     }
   };
 
-  // Function to handle the click event on a user in the user list.
+  // ユーザーをクリックした際の処理
   const handleClickUser = (userId) => {
     const clickedUser = userData.find((user) => user._id === userId);
 
     if (clickedUser) {
+      // 選択されたユーザーがすでに選択済みかどうかを確認
       const userAlreadySelected = selectedUsers.some(
         (selectedUser) => selectedUser._id === userId
       );
 
+      // ユーザーが選択されていない場合は追加し、選択されている場合は選択解除する
       if (!userAlreadySelected) {
         setSelectedUsers((prevSelectedUsers) => [
           ...prevSelectedUsers,
@@ -80,94 +81,97 @@ const Teamsetting = ({ loginUser }) => {
     }
   };
 
-  // Function to handle the search input for team names and filter the teamData accordingly.
+  // チーム名検索フォームの入力値を処理
   const onSearch = (value) => {
+    // チーム名検索入力値の更新
     setTeamSearchInput(value);
 
-    // Convert the search input and team names to lowercase for case-insensitive search
+    // 小文字検索文字列を作成
     const lowerCaseSearch = value.toLowerCase();
 
+    // チームデータを検索して結果を更新
     const filteredTeams = teamData.filter((team) =>
       team.team_name.toLowerCase().includes(lowerCaseSearch)
     );
-
     setsearchteamData(filteredTeams);
   };
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-    // Perform any other actions when the page changes
-  };
-
-  // Function to handle the form submission when the user selects a team for the selected users.
+  // フォームのサブミット時の処理
   const handleFormSubmit = async (values) => {
+    // 選択されたユーザーデータを更新
     const newUserData = clickUsers.map((user) => ({
-      ...user, // Include the existing properties from the user object
+      ...user,
       del_flg: "0",
       update_user: loginUser[0]._id,
       update_datetime: new Date().toISOString(),
       team_name: values.teamSelect,
     }));
-    // const selectedTeam = values.teamSelect;
+
     try {
+      // 選択されたユーザーデータを更新するAPIを呼び出す
       for (const user of newUserData) {
         await updateUser(user._id, user);
       }
     } catch (error) {
       console.error("Error updating users:", error);
     }
+    // 成功メッセージを表示する
     message.success(Messages.M008);
 
-    //setClickUsers([]);
+    // ユーザーデータを更新して再取得
     fetchUsers();
-    //setSelectedUsers([]);
+    // クリックされたユーザーデータをリセット
     setClickUsers([]);
   };
 
-  // Function to handle the form submission when the user adds search values for team names.
+  // チーム検索のフォームサブミット時の処理
   const handleSearchSubmit = async (values) => {
-    // Get the new search value from the input
+    // 選択されたチームを取得し、検索値を更新する
     const selectedTeam = values.teamSelect === "なし" ? "" : values.teamSelect;
     const newSearchValue = values.teamSearchInput;
 
-    // Add the new search value to the existing searchValues array
     setSearchValues((prevSearchValues) => [
       ...prevSearchValues,
       newSearchValue,
     ]);
-    // Filter the userData based on the updated searchValues array
+
     let filteredUserData;
     if (searchValues.includes("なし")) {
-      // If "なし" is in the searchValues array, include users with no team_name
+      // "なし" チームを選択している場合は、チーム名が空または選択されたチーム名を持つユーザーデータをフィルタリング
       filteredUserData = userData.filter(
         (user) => !user.team_name || searchValues.includes(user.team_name)
       );
     } else {
-      // If "なし" is not in the searchValues array, only include users with the exact team_name that matches the searchValue
+      // "なし" チーム以外のチームを選択している場合は、選択されたチーム名を持つユーザーデータをフィルタリング
       filteredUserData = userData.filter(
         (user) => searchValues.includes(user.team_name) && user.team_name
       );
     }
 
+    // フィルタリングされたユーザーデータを更新する
     setUser(filteredUserData);
+    // クリックされたユーザーデータをリセットする
     setClickUsers([]);
+    // モーダルを非表示にする
     setIsModalVisible(false);
   };
 
-  // Function to move selected users from the left box to the right box.
+  // 右矢印ボタンクリック時の処理
   const handleRightClick = () => {
     if (!loading) {
+      // ロード中でなければ、選択されたユーザーデータをクリックされたユーザーデータに追加する
       setClickUsers((prevUsers) => {
         const uniqueSelectedUsers = selectedUsers.filter(
           (selectedUser) => !prevUsers.includes(selectedUser)
         );
         return [...prevUsers, ...uniqueSelectedUsers];
       });
+      // 選択されたユーザーデータをリセットする
       setSelectedUsers([]);
     }
   };
 
-  // Function to move selected users back from the right box to the left box.
+  // 左矢印ボタンクリック時の処理
   const handleLeftClick = () => {
     if (!loading) {
       setClickUsers((prevClickUsers) => {
@@ -177,32 +181,33 @@ const Teamsetting = ({ loginUser }) => {
         );
         return updatedClickUsers;
       });
+      // 選択されたユーザーデータをリセットする
       setSelectedUsers([]);
     }
   };
 
-  // Function to handle the checkbox change event for team names in the team search modal.
+  // チェックボックスの変更時の処理
   const onChange = (e, record) => {
-    // Toggle filter based on team_name
     if (e.target.checked) {
-      // Checkbox is checked, add the team_name to the search value
+      // チェックがオンになった場合、選択されたチーム名を検索値に追加する
       setSearchValues((prevSearchValues) => [
         ...prevSearchValues,
         record.team_name,
       ]);
     } else {
-      // Checkbox is unchecked, remove the team_name from the search value
+      // チェックがオフになった場合、選択されたチーム名を検索値から削除
       setSearchValues((prevSearchValues) =>
         prevSearchValues.filter((value) => value !== record.team_name)
       );
     }
   };
 
-  // Function to show the team search modal when the search icon button is clicked.
+  // モーダルの表示処理
   const handleShowModal = () => {
     setIsModalVisible(true);
   };
 
+  // テーブルのカラム定義
   const columns = [
     {
       title: "番号",
@@ -221,12 +226,18 @@ const Teamsetting = ({ loginUser }) => {
     },
   ];
 
-  // Static data for "なし" team
+  // ページが変更されたときに他のアクションを実行する
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  // "なし" チームの静的データ
   const noneTeam = {
     id: "none",
     team_name: "なし",
   };
 
+  // チーム検索用のデータを準備する
   let combinedTeamData;
   if (teamSearchInput.length === 0) {
     combinedTeamData = [noneTeam, ...teamData];
@@ -234,10 +245,7 @@ const Teamsetting = ({ loginUser }) => {
     combinedTeamData = searchteamData;
   }
 
-  const paginationConfig = {
-    pageSize: 6,
-  };
-
+  // チーム選択のオプションを作成
   const teamOptions = teamData.map((team) => ({
     value: team.team_name,
     label: team.team_name,
@@ -261,7 +269,7 @@ const Teamsetting = ({ loginUser }) => {
                 fontSize: "20px",
                 cursor: "pointer",
                 borderRadius: "5px",
-                marginLeft: "5px",
+                marginLeft: "20px",
               }}
               onClick={handleShowModal}
             />
@@ -280,7 +288,7 @@ const Teamsetting = ({ loginUser }) => {
                   placeholder="検索条件入力"
                   name="teamSearchInput"
                   value={teamSearchInput}
-                  onChange={(e) => onSearch(e.target.value)} // Connect the onChange event
+                  onChange={(e) => onSearch(e.target.value)}
                 />
               </Form.Item>
             </Form>
@@ -305,24 +313,33 @@ const Teamsetting = ({ loginUser }) => {
           </Modal>
           <div className={styles["div-color"]}>
             <Form form={form} onFinish={handleFormSubmit}>
+              <Form.Item name="teamSelect" style={{ display: "none" }}>
+                <Input type="hidden" />
+              </Form.Item>
               <Form.Item
                 name="teamSelect"
                 className={styles["usermanagement-form-item"]}
                 rules={[
                   {
                     required: true,
-                    message: "チームを選択してください", // Error message when the select box is not chosen
+                    message: "チームを選択してください",
                   },
                 ]}
               >
-                <div className={styles["selectbox-label"]}>
-                  <label>チームに移動</label>
+                <div>
+                  <div className={styles["selectbox-label"]}>
+                    <label>チームに移動</label>
+                  </div>
+                  <Select
+                    style={{ width: "250px" }}
+                    className={styles["usermanagement-input"]}
+                    options={teamOptions}
+                    value={form.getFieldValue("teamSelect")}
+                    onChange={(value) =>
+                      form.setFieldsValue({ teamSelect: value })
+                    }
+                  />
                 </div>
-                <Select
-                  style={{ width: "250px" }}
-                  className={styles["usermanagement-input"]}
-                  options={teamOptions}
-                />
               </Form.Item>
               <Form.Item>
                 <div className={styles["teamsetting-box-main"]}>

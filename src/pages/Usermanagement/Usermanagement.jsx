@@ -70,6 +70,7 @@ const Usermanagement = ({ loginUser }) => {
         email: values.email,
         user_level: values.role,
         del_flg: "0",
+        team_name : "",
         create_user: loginUser[0]._id,
         create_datetime: new Date().toISOString(),
       };

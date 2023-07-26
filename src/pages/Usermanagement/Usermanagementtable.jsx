@@ -33,7 +33,7 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const [emptySearchResults, setEmptySearchResults] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isSearchActive, setIsSearchActive] = useState(false);
+  const [isSearchActive, setIsSearchActive] = useState(false);//検索ステージにあるかどうか確認
   const [searchedData, setSearchedData] = useState(data);
   let initialUndeletedUsersCount = 0;
   if (data) {
@@ -41,6 +41,7 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
       (user) => user.del_flg === "0"
     ).length;
   }
+  //合計
   const [totalFilteredRows, setTotalFilteredRows] = useState(
     initialUndeletedUsersCount
   );
@@ -59,6 +60,9 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
         ? record[dataIndex].toString().toLowerCase().includes(searchTerm)
         : ""
     );
+    if (filteredData.length === 0) {
+      message.warning(Messages.M021);
+  }
     setSearchedData(filteredData);
     setIsSearchActive(true);
     const totalFilteredRows = filteredData.filter(
@@ -316,8 +320,8 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
         <link rel="icon" type="image/png" href="/path/to/favicon.png" />
       </Helmet>
       <div className={styles["row-count"]} style={{ color: "green" }}>
-        Total :{" "}
-        {isSearchActive ? totalFilteredRows : initialUndeletedUsersCount} rows{" "}
+        Total : 
+        {isSearchActive ? totalFilteredRows : initialUndeletedUsersCount} rows
       </div>
       <div className={styles.responsiveTable}>
         <Table

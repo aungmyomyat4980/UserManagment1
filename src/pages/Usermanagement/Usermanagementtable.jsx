@@ -144,6 +144,11 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
 
   // 編集処理
   const handleEdit = async () => {
+    const emailFieldError = form.getFieldError('email');
+    if (emailFieldError && emailFieldError.length > 0) {
+      return; // Stop execution if email field validation fails
+    }
+  
     try {
       const values = await form.validateFields();
       const userData = {
@@ -162,8 +167,11 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
       handleModalCancel();
       fetchUsers();
     } catch (error) {
+      message.error(Messages.M009);
+      console.error("Error updating user:", error);
     }
   };
+  
 
   // ユーザー編集用のモーダルを開く処理
   const handleEditUser = async (userId) => {

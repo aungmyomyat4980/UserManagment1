@@ -7,6 +7,7 @@ import { Messages } from "../../data/message";
 import { Helmet } from "react-helmet";
 
 const Usermanagement = ({ loginUser }) => {
+  const [shouldResetSearch, setShouldResetSearch] = useState(false);
   // APIから取得したユーザーデータを保持する
   const [userData, setUserData] = useState([]);
   // API呼び出し中の読み込み状態を待つ
@@ -82,6 +83,7 @@ const Usermanagement = ({ loginUser }) => {
       // ユーザーを再取得し、フォームフィールドをリセットする
       fetchUsers();
       form.resetFields();
+      setShouldResetSearch(true);
     } catch (error) {
       message.success(Messages.M007);
       console.error("Error creating user:", error);
@@ -166,6 +168,7 @@ const Usermanagement = ({ loginUser }) => {
             loading={loading}
             fetchUsers={fetchUsers}
             loginUserid={loginUser[0]._id}
+            onResetSearch = {shouldResetSearch}
           />
         </div>
       </div>

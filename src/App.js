@@ -10,6 +10,7 @@ import Usermanagement from "./pages/Usermanagement/Usermanagement";
 import Menu from "./pages/Menu/Menu";
 import Teamsetting from "./pages/Teamsetting/Teamsetting";
 import UserSearch from "./pages/UserSearch/UserSearch";
+import { useForm } from "antd/es/form/Form";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(
@@ -20,7 +21,7 @@ function App() {
   const [loginUsercheck, setLoginUsercheck] = useState(
     localStorage.getItem("loginUsercheck") === "true" ? true : false
   );
-
+  const [form] = useForm();
   const [loginUser, setLoginUser] = useState([
     {
       _id: "",
@@ -88,7 +89,7 @@ function App() {
         />
         <Route
           path="/teamsetting"
-          element={<ProtectedRoute element={Teamsetting} />}
+          element={<ProtectedRoute element={Teamsetting} form={form} />}
         />
         <Route
           path="/menu"

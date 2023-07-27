@@ -1,0 +1,72 @@
+[
+    {
+        "id": 1,
+        "team_name": "Team A",
+        "del_flg": "0"
+    },
+    {
+        "id": 2,
+        "team_name": "Team B",
+        "del_flg": "0"
+    },
+    {
+        "id": 3,
+        "team_name": "Team C",
+        "del_flg": "0"
+    },
+    {
+        "id": 4,
+        "team_name": "Team D",
+        "del_flg": "0"
+    },
+    {
+        "id": 5,
+        "team_name": "Team E",
+        "del_flg": "0"
+    },
+    {
+        "id": 6,
+        "team_name": "Team F",
+        "del_flg": "0"
+    },
+    {
+        "id": 7,
+        "team_name": "Team G",
+        "del_flg": "0"
+    },
+    {
+        "id": 8,
+        "team_name": "Team H",
+        "del_flg": "0"
+    },
+    {
+        "id": 9,
+        "team_name": "Team I",
+        "del_flg": "0"
+    },
+    {
+        "id": 10,
+        "team_name": "Team J",
+        "del_flg": "0"
+    },
+    {
+        "id": 11,
+        "team_name": "Team K",
+        "del_flg": "0"
+    },
+    {
+        "id": 12,
+        "team_name": "Team L",
+        "del_flg": "0"
+    },
+    {
+        "id": 13,
+        "team_name": "Team M",
+        "del_flg": "0"
+    },
+    {
+        "id": 14,
+        "team_name": "Team N",
+        "del_flg": "0"
+    }
+]

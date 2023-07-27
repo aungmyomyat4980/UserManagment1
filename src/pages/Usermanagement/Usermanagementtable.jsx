@@ -162,8 +162,6 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
       handleModalCancel();
       fetchUsers();
     } catch (error) {
-      message.error(Messages.M009);
-      console.error("Error updating user:", error);
     }
   };
 

@@ -154,6 +154,7 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
       return; // Stop execution if email field validation fails
     }
 
+    
     try {
       const values = await form.validateFields();
       // Check if the email is unique among existing users
@@ -270,20 +271,35 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
       align: "right",
       render: (_, record, index) => {
         const pageIndex = currentPage === 1 ? 0 : (currentPage - 1) * 10;
-        return pageIndex + index + 1;
+        return (
+          <div style={{ maxWidth: "100px", wordWrap: "break-word" }}>
+            {pageIndex + index + 1}
+          </div>
+        );
       },
     },
     {
       title: () => <div style={{ textAlign: "center" }}>ユーザー名</div>,
       dataIndex: "user_name",
       key: "username",
-      render: (_, record) => `${record.user_name} ${record.user_name_last}`,
+      render: (_, record) => (
+        <div style={{ maxWidth: "260px", wordWrap: "break-word" }}>
+          {`${record.user_name} ${record.user_name_last}`}
+        </div>
+      ),
+      width: "20%",
     },
     {
       title: () => <div style={{ textAlign: "center" }}>メールアドレス</div>,
       dataIndex: "email",
       key: "email",
       ...getColumnSearchProps("email", "メールアドレス"),
+      width: "35%", // Set the width for the column in percentage
+    render: (_, record) => (
+      <div style={{ maxWidth: "300px", wordWrap: "break-word" }}>
+        {record.email}
+      </div>
+    ),
     },
     {
       title: () => <div style={{ textAlign: "center" }}>ユーザー権限</div>,
@@ -291,6 +307,7 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
       key: "role",
       sorter: (a, b) => a.user_level.localeCompare(b.user_level),
       sortDirections: ["ascend", "descend"],
+      width: "20%",
     },
     {
       title: () => <div style={{ textAlign: "center" }}>操作</div>,
@@ -350,7 +367,7 @@ const Usermanagementtable = ({ data, loading, fetchUsers, loginUserid }) => {
           loading={loading}
           onChange={onChange}
           pagination={paginationConfig}
-          classNa00me={styles.table}
+          className={styles.table}
         />
       </div>
       <Modal
